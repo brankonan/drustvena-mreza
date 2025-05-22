@@ -6,6 +6,7 @@ namespace WebApplication2.Repositories
     public class GrupaRepository
     {
         private const string filePath = "data/grupe.csv";
+        private const string clanstaPath = "data/clanstav.csv";
         public static Dictionary<int, Grupa> Data;
 
         public GrupaRepository()
@@ -32,19 +33,41 @@ namespace WebApplication2.Repositories
 
                 Data[id] = grupa;
             }
+
+            string[] clanstva = File.ReadAllLines(clanstaPath);
+
+            foreach(string line in clanstva)
+            {
+                string[] delovi = line.Split(",");
+                int korisnikId = int.Parse(delovi[0]);
+                int grupaId = int.Parse(delovi[1]);
+
+                if(Data.ContainsKey(grupaId) && KorisnikRepozitorijum.Data.ContainsKey(korisnikId))
+                {
+                    Data[grupaId].Korisnici.Add(KorisnikRepozitorijum.Data[korisnikId]);
+                }
+            }
         }
 
         public void Sacuvaj()
         {
             List<string> lines = new List<string>();
+            List<string> clanstva = new List<string>();
 
             foreach (Grupa gr in Data.Values)
             {
-               
                 lines.Add($"{gr.Id},{gr.Ime},{gr.DatumOsnivanja.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)}");
+
+                foreach (Korisnik korisnik in gr.Korisnici) 
+                {
+                    clanstva.Add($"{korisnik.Id},{gr.Id}"); 
+                }
             }
 
             File.WriteAllLines(filePath, lines);
+            File.WriteAllLines(clanstaPath, clanstva); 
         }
+
+
     }
 }
