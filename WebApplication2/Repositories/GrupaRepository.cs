@@ -6,7 +6,7 @@ namespace WebApplication2.Repositories
     public class GrupaRepository
     {
         private const string filePath = "data/grupe.csv";
-        private const string clanstaPath = "data/clanstav.csv";
+        private const string clanstvaPath = "data/clanstva.csv";
         public static Dictionary<int, Grupa> Data;
 
         public GrupaRepository()
@@ -34,7 +34,7 @@ namespace WebApplication2.Repositories
                 Data[id] = grupa;
             }
 
-            string[] clanstva = File.ReadAllLines(clanstaPath);
+            string[] clanstva = File.ReadAllLines(clanstvaPath);
 
             foreach(string line in clanstva)
             {
@@ -42,7 +42,7 @@ namespace WebApplication2.Repositories
                 int korisnikId = int.Parse(delovi[0]);
                 int grupaId = int.Parse(delovi[1]);
 
-                if(Data.ContainsKey(grupaId) && KorisnikRepozitorijum.Data.ContainsKey(korisnikId))
+                if (KorisnikRepozitorijum.Data != null && Data.ContainsKey(grupaId) && KorisnikRepozitorijum.Data.ContainsKey(korisnikId))
                 {
                     Data[grupaId].Korisnici.Add(KorisnikRepozitorijum.Data[korisnikId]);
                 }
@@ -65,7 +65,7 @@ namespace WebApplication2.Repositories
             }
 
             File.WriteAllLines(filePath, lines);
-            File.WriteAllLines(clanstaPath, clanstva); 
+            File.WriteAllLines(clanstvaPath, clanstva); 
         }
 
 

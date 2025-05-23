@@ -17,7 +17,7 @@ namespace WebApplication2.Repositories
             }
         }
 
-        public void Ucitaj()
+        private void Ucitaj()
         {
             Data = new Dictionary<int, Korisnik>();
             string[] linije = File.ReadAllLines(filePath);

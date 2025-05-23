@@ -13,6 +13,21 @@ namespace WebApplication2.Controllers
         public GrupaRepository grupaRepository = new GrupaRepository();
         public KorisnikRepozitorijum korisnikRepository = new KorisnikRepozitorijum();
 
+        //GET /gropus/{groupId}/users
+
+        [HttpGet]
+        public ActionResult<List<Korisnik>> GetUserFromGroup(int idGrupe)
+        {
+            if (!GrupaRepository.Data.ContainsKey(idGrupe))
+            {
+                return NotFound();
+            }
+
+            Grupa grupa = GrupaRepository.Data[idGrupe];
+            return Ok(grupa.Korisnici);
+        }
+
+
         //PUT /groups/{groupId}/ users /{ userId}
 
         [HttpPut("{idKorisnika}")]
