@@ -37,7 +37,7 @@ namespace WebApplication2.Controllers
             if (string.IsNullOrWhiteSpace(noviKorisnik.KorisnickoIme) ||
                 string.IsNullOrWhiteSpace(noviKorisnik.Ime) ||
                 string.IsNullOrWhiteSpace(noviKorisnik.Prezime) ||
-                noviKorisnik.Datum == default(DateTime))
+                string.IsNullOrWhiteSpace(noviKorisnik.Datum.ToShortDateString()))
             {
                 return BadRequest();
             }
@@ -48,6 +48,18 @@ namespace WebApplication2.Controllers
                 korisnikRepozitorijum.Sacuvaj();
 
                 return Ok(noviKorisnik);
+        }
+
+        [HttpDelete("{id}")]
+
+        public ActionResult Delete(int id)
+        {
+            if (!KorisnikRepozitorijum.Data.ContainsKey(id))
+            { return NotFound(); }
+
+            KorisnikRepozitorijum.Data.Remove(id);
+            korisnikRepozitorijum.Sacuvaj();
+            return NoContent();
         }
 
         private int SracunajNoviId(List<int> idList)
