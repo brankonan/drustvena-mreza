@@ -7,6 +7,18 @@ namespace WebApplication2
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAllOrigins",
+                    builder =>
+                    {
+                        builder.AllowAnyOrigin()
+                               .AllowAnyHeader()
+                               .AllowAnyMethod();
+                    });
+            });
+
+
             // Add services to the container.
 
             builder.Services.AddControllers();
@@ -15,6 +27,9 @@ namespace WebApplication2
             builder.Services.AddSwaggerGen();
 
             var app = builder.Build();
+
+            app.UseCors("AllowAllOrigins");
+
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())

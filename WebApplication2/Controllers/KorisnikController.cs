@@ -43,12 +43,29 @@ namespace WebApplication2.Controllers
             }
 
 
-            noviKorisnik.Id = SracunajNoviId(KorisnikRepozitorijum.Data.Keys.ToList());            
-                KorisnikRepozitorijum.Data[noviKorisnik.Id] = noviKorisnik;
-                korisnikRepozitorijum.Sacuvaj();
+            noviKorisnik.Id = SracunajNoviId(KorisnikRepozitorijum.Data.Keys.ToList());
+            KorisnikRepozitorijum.Data[noviKorisnik.Id] = noviKorisnik;
+            korisnikRepozitorijum.Sacuvaj();
 
-                return Ok(noviKorisnik);
+            return Ok(noviKorisnik);
         }
+
+        [HttpPut("{id}")]
+        public ActionResult<Korisnik> Update(int id, [FromBody] Korisnik korisnik) {
+
+            if (string.IsNullOrWhiteSpace(korisnik.Ime) || string.IsNullOrWhiteSpace(korisnik.KorisnickoIme) || string.IsNullOrWhiteSpace(korisnik.Prezime) || string.IsNullOrWhiteSpace(korisnik.Datum.ToShortDateString()))
+                { return BadRequest(); }
+            if (!KorisnikRepozitorijum.Data.ContainsKey(id)) 
+                { return NotFound(); }
+            Korisnik noviKorisnik = KorisnikRepozitorijum.Data[id];
+            noviKorisnik.KorisnickoIme = korisnik.KorisnickoIme;
+            noviKorisnik.Ime = korisnik.Ime;
+            noviKorisnik.Prezime = korisnik.Prezime;
+            noviKorisnik.Datum = korisnik.Datum;
+
+            return Ok(korisnik);
+        }
+
 
         [HttpDelete("{id}")]
 
