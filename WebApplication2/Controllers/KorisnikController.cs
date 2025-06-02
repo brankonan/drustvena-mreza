@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using WebApplication2.Models;
 using WebApplication2.Repositories;
+using Microsoft.Data.Sqlite;
 
 namespace WebApplication2.Controllers
 {
@@ -10,13 +11,27 @@ namespace WebApplication2.Controllers
     public class KorisnikController : ControllerBase
     {
         private KorisnikRepozitorijum korisnikRepozitorijum = new KorisnikRepozitorijum();
+        private readonly string connectionString = "Data Source=database/mydatabase.db";
 
+
+        //Izmenjena metoda GET svih korisnika
         [HttpGet]
         public ActionResult<List<Korisnik>> GetAll()
         {
-            List<Korisnik> korisnici = KorisnikRepozitorijum.Data.Values.ToList();
+            //List<Korisnik> korisnici = KorisnikRepozitorijum.Data.Values.ToList();
 
-            return Ok(korisnici);
+            //return Ok(korisnici);
+
+
+            try
+            {
+                var korisnici = GetAllFromDatabase();
+                return Ok(korisnici);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Greska pri dohvatanju korisnika" + ex.Message);
+            }
         }
 
 
@@ -32,7 +47,7 @@ namespace WebApplication2.Controllers
 
         [HttpPost]
 
-        public ActionResult<Korisnik> Create([FromBody] Korisnik noviKorisnik)
+            public ActionResult<Korisnik> Create([FromBody] Korisnik noviKorisnik)
         {
             if (string.IsNullOrWhiteSpace(noviKorisnik.KorisnickoIme) ||
                 string.IsNullOrWhiteSpace(noviKorisnik.Ime) ||
@@ -89,6 +104,30 @@ namespace WebApplication2.Controllers
             {
                 return idList.Max() + 1;
             }
+        }
+
+        private List<Korisnik> GetAllFromDatabase()
+        {
+            List<Korisnik> korisnici = new List<Korisnik>();
+
+            using (var connection = new SqliteConnection(connectionString))
+            {
+                connection.Open();
+                string query = "SELECT Id, Username, Name, Surname, Birthday FROM Users";
+                using var command = new SqliteCommand(query, connection);
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    korisnici.Add(new Korisnik(
+                        Convert.ToInt32(reader["Id"]),
+                        reader["Username"].ToString(),
+                        reader["Name"].ToString(),
+                        reader["Surname"].ToString(),
+                        DateTime.Parse(reader["Birthday"].ToString())
+                    ));
+                }
+            }
+            return korisnici;
         }
     }
 }
