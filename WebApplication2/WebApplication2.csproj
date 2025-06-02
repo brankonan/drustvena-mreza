@@ -7,6 +7,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="data\mydatabase.db" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="data\mydatabase.db">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.5" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>
 
