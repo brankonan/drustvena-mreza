@@ -25,7 +25,7 @@ namespace WebApplication2.Controllers
         [HttpPost]
         public ActionResult<Grupa> Create([FromBody] Grupa novaGrupa)
         {
-            if(string.IsNullOrWhiteSpace(novaGrupa.Ime) || string.IsNullOrWhiteSpace(novaGrupa.DatumOsnivanja.ToShortTimeString()))
+            if(string.IsNullOrWhiteSpace(novaGrupa.Ime) || string.IsNullOrWhiteSpace(novaGrupa.DatumOsnivanja.ToShortDateString()))
             {
                 return BadRequest();
             }
