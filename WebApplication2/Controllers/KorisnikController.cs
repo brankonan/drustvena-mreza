@@ -11,8 +11,13 @@ namespace WebApplication2.Controllers
     public class KorisnikController : ControllerBase
     {
         private KorisnikRepozitorijum korisnikRepozitorijum = new KorisnikRepozitorijum();
-        private readonly string connectionString = "Data Source=database/mydatabase.db";
+        //private readonly string connectionString = "Data Source=database/mydatabase.db";
+        private readonly UserDbRepository userRepo;
 
+        public KorisnikController()
+        {
+            userRepo = new UserDbRepository();
+        }
 
         //Izmenjena metoda GET svih korisnika
         [HttpGet]
@@ -25,8 +30,8 @@ namespace WebApplication2.Controllers
 
             try
             {
-                var korisnici = GetAllFromDatabase();
-                return Ok(korisnici);
+                //var korisnici = GetAllFromDatabase();
+                return Ok(userRepo.GetAll());
             }
             catch (Exception ex)
             {
@@ -106,28 +111,28 @@ namespace WebApplication2.Controllers
             }
         }
 
-        private List<Korisnik> GetAllFromDatabase()
-        {
-            List<Korisnik> korisnici = new List<Korisnik>();
+        //private List<Korisnik> GetAllFromDatabase()
+        //{
+        //    List<Korisnik> korisnici = new List<Korisnik>();
 
-            using (var connection = new SqliteConnection(connectionString))
-            {
-                connection.Open();
-                string query = "SELECT Id, Username, Name, Surname, Birthday FROM Users";
-                using var command = new SqliteCommand(query, connection);
-                using var reader = command.ExecuteReader();
-                while (reader.Read())
-                {
-                    korisnici.Add(new Korisnik(
-                        Convert.ToInt32(reader["Id"]),
-                        reader["Username"].ToString(),
-                        reader["Name"].ToString(),
-                        reader["Surname"].ToString(),
-                        DateTime.Parse(reader["Birthday"].ToString())
-                    ));
-                }
-            }
-            return korisnici;
-        }
+        //    using (var connection = new SqliteConnection(connectionString))
+        //    {
+        //        connection.Open();
+        //        string query = "SELECT Id, Username, Name, Surname, Birthday FROM Users";
+        //        using var command = new SqliteCommand(query, connection);
+        //        using var reader = command.ExecuteReader();
+        //        while (reader.Read())
+        //        {
+        //            korisnici.Add(new Korisnik(
+        //                Convert.ToInt32(reader["Id"]),
+        //                reader["Username"].ToString(),
+        //                reader["Name"].ToString(),
+        //                reader["Surname"].ToString(),
+        //                DateTime.Parse(reader["Birthday"].ToString())
+        //            ));
+        //        }
+        //    }
+        //    return korisnici;
+        //}
     }
 }
