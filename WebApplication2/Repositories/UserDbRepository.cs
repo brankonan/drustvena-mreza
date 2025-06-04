@@ -61,5 +61,59 @@ namespace WebApplication2.Repositories
             }
             return null;
         }
+
+        public Korisnik Create(Korisnik korisnik)
+        {
+            using (var connection = new SqliteConnection(connectionString))
+            {
+                connection.Open();
+                string query = "INSERT INTO Users (Username,Name, Surname, Birthday) VALUES (@username, @name, @surname, @birthday); SELECT last_insert_rowid();";
+                using (var command = new SqliteCommand(query,connection))
+                {
+                    command.Parameters.AddWithValue("@username", korisnik.KorisnickoIme);
+                    command.Parameters.AddWithValue("@name", korisnik.Ime);
+                    command.Parameters.AddWithValue("@surname", korisnik.Prezime);
+                    command.Parameters.AddWithValue("@birthday", korisnik.Datum.ToString("yyyy-MM-dd"));
+                    long id = (long)command.ExecuteScalar();
+                    korisnik.Id = (int)id;
+                    return korisnik;
+                }
+            }
+        }
+        public bool Update(Korisnik korisnik)
+        {
+            using (var connection = new SqliteConnection(connectionString))
+            {
+                connection.Open();
+                string query = "UPDATE Users SET Username = @username, Name = @name, Surname = @surname, Birthday = @birthday WHERE Id = @id";
+                using (var command = new SqliteCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@username", korisnik.KorisnickoIme);
+                    command.Parameters.AddWithValue("@name", korisnik.Ime);
+                    command.Parameters.AddWithValue("@surname", korisnik.Prezime);
+                    command.Parameters.AddWithValue("@birthday", korisnik.Datum.ToString("yyyy-MM-dd"));
+                    command.Parameters.AddWithValue("@id", korisnik.Id);
+
+                    int rowsAffected = command.ExecuteNonQuery();
+                    return rowsAffected > 0;
+                }
+            }
+        }
+
+        public bool Delete(int id)
+        {
+            using (var connection = new SqliteConnection(connectionString))
+            {
+                connection.Open();
+                string query = "DELETE FROM Users WHERE id = @id";
+                using (var command = new SqliteCommand(query,connection))
+                {
+                    command.Parameters.AddWithValue("@id", id);
+                    
+                    int rowsAffected = command.ExecuteNonQuery();
+                    return rowsAffected > 0;
+                }
+            }
+        }
     }
 }

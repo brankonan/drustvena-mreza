@@ -43,11 +43,19 @@ namespace WebApplication2.Controllers
         [HttpGet("{id}")]
         public ActionResult<Korisnik> GetById(int id)
         {
-            if (!KorisnikRepozitorijum.Data.ContainsKey(id))
+            try
             {
-                return NotFound();
+                var korisnik = userRepo.GetById(id);
+                if (korisnik == null)
+                {
+                    return NotFound();
+                }
+                return Ok(korisnik);
             }
-            return Ok(KorisnikRepozitorijum.Data[id]);
+            catch (Exception ex)
+            {
+                return BadRequest("Greska pri dohvatanju korisnika: " + ex.Message);
+            }
         }
 
         [HttpPost]
@@ -61,29 +69,47 @@ namespace WebApplication2.Controllers
             {
                 return BadRequest();
             }
+            //noviKorisnik.Id = SracunajNoviId(KorisnikRepozitorijum.Data.Keys.ToList());
+            //KorisnikRepozitorijum.Data[noviKorisnik.Id] = noviKorisnik;
+            //korisnikRepozitorijum.Sacuvaj();
 
+            //return Ok(noviKorisnik);
 
-            noviKorisnik.Id = SracunajNoviId(KorisnikRepozitorijum.Data.Keys.ToList());
-            KorisnikRepozitorijum.Data[noviKorisnik.Id] = noviKorisnik;
-            korisnikRepozitorijum.Sacuvaj();
-
-            return Ok(noviKorisnik);
+            try
+            {
+                var kreiraniKorisnik = userRepo.Create(noviKorisnik);
+                return CreatedAtAction("GetById", new { id = noviKorisnik.Id }, kreiraniKorisnik);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Greska pri unosu korisnika: " + ex.Message);
+            }
         }
 
         [HttpPut("{id}")]
         public ActionResult<Korisnik> Update(int id, [FromBody] Korisnik korisnik) {
 
             if (string.IsNullOrWhiteSpace(korisnik.Ime) || string.IsNullOrWhiteSpace(korisnik.KorisnickoIme) || string.IsNullOrWhiteSpace(korisnik.Prezime) || string.IsNullOrWhiteSpace(korisnik.Datum.ToShortDateString()))
-                { return BadRequest(); }
-            if (!KorisnikRepozitorijum.Data.ContainsKey(id)) 
-                { return NotFound(); }
-            Korisnik noviKorisnik = KorisnikRepozitorijum.Data[id];
-            noviKorisnik.KorisnickoIme = korisnik.KorisnickoIme;
-            noviKorisnik.Ime = korisnik.Ime;
-            noviKorisnik.Prezime = korisnik.Prezime;
-            noviKorisnik.Datum = korisnik.Datum;
-
-            return Ok(korisnik);
+                { return BadRequest("Neka od polja nisu popunjena"); }
+            //if (!KorisnikRepozitorijum.Data.ContainsKey(id)) 
+            //    { return NotFound(); }
+            //Korisnik noviKorisnik = KorisnikRepozitorijum.Data[id];
+            //noviKorisnik.KorisnickoIme = korisnik.KorisnickoIme;
+            //noviKorisnik.Ime = korisnik.Ime;
+            //noviKorisnik.Prezime = korisnik.Prezime;
+            //noviKorisnik.Datum = korisnik.Datum;
+            try
+            {
+                korisnik.Id = id;
+                bool updated = userRepo.Update(korisnik);
+                if(!updated)
+                 return NotFound();
+                return Ok(korisnik);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Greska pri izmeni korisnika: " + ex.Message);
+            }   
         }
 
 
@@ -91,25 +117,38 @@ namespace WebApplication2.Controllers
 
         public ActionResult Delete(int id)
         {
-            if (!KorisnikRepozitorijum.Data.ContainsKey(id))
-            { return NotFound(); }
+            //if (!KorisnikRepozitorijum.Data.ContainsKey(id))
+            //{ return NotFound(); }
 
-            KorisnikRepozitorijum.Data.Remove(id);
-            korisnikRepozitorijum.Sacuvaj();
-            return NoContent();
+            //KorisnikRepozitorijum.Data.Remove(id);
+            //korisnikRepozitorijum.Sacuvaj();
+            //return NoContent();
+
+            try
+            {
+                bool deleted = userRepo.Delete(id);
+                if (!deleted)
+                    return NotFound();
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Greska pri brisanju korisnika: " + ex.Message);
+            }
+
         }
 
-        private int SracunajNoviId(List<int> idList)
-        {
-            if (idList.Count == 0)
-            {
-                return 1;
-            }
-            else
-            {
-                return idList.Max() + 1;
-            }
-        }
+        //private int SracunajNoviId(List<int> idList)
+        //{
+        //    if (idList.Count == 0)
+        //    {
+        //        return 1;
+        //    }
+        //    else
+        //    {
+        //        return idList.Max() + 1;
+        //    }
+        //}
 
         //private List<Korisnik> GetAllFromDatabase()
         //{
