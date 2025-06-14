@@ -10,13 +10,14 @@ namespace WebApplication2.Controllers
     [ApiController]
     public class GroupMembersController : ControllerBase
     {
-        public GrupaRepository grupaRepository = new GrupaRepository();
+
         public KorisnikRepozitorijum korisnikRepository = new KorisnikRepozitorijum();
+        public GrupaRepository grupaRepository = new GrupaRepository();
 
         //GET /gropus/{groupId}/users
 
         [HttpGet]
-        public ActionResult<List<Korisnik>> GetUserFromGroup(int idGrupe)
+        public ActionResult<List<Korisnik>> GetUserFromGroup([FromRoute] int idGrupe)
         {
             if (!GrupaRepository.Data.ContainsKey(idGrupe))
             {
