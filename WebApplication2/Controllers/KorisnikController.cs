@@ -19,22 +19,35 @@ namespace WebApplication2.Controllers
         }
 
         //Izmenjena metoda GET svih korisnika
-        [HttpGet]
-        public ActionResult<List<Korisnik>> GetAll()
+
+        //GET: api/users/paged
+        [HttpGet("paged")]
+        public ActionResult GetPaged([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
             //List<Korisnik> korisnici = KorisnikRepozitorijum.Data.Values.ToList();
 
             //return Ok(korisnici);
-
-
+            if (page < 1 || pageSize < 1)
+            {
+                return BadRequest("Page and PageSize must be greater than zero");
+            }
             try
             {
                 //var korisnici = GetAllFromDatabase();
-                return Ok(userRepo.GetAll());
+                var users = userRepo.GetPaged(page, pageSize);
+                var totalCount = userRepo.CountAll();
+
+                var result = new
+                {
+                    Data = users,
+                    TotalCount = totalCount
+                };
+
+                return Ok(result);
             }
             catch (Exception ex)
             {
-                return BadRequest("Greska pri dohvatanju korisnika" + ex.Message);
+                return Problem("Greska pri dohvatanju korisnika" + ex.Message);
             }
         }
 

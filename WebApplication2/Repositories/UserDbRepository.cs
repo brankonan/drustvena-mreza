@@ -16,15 +16,19 @@ namespace WebApplication2.Repositories
         }
 
 
-        public List<Korisnik> GetAll()
+        public List<Korisnik> GetPaged(int page, int pageSize)
         {
             var korisnici = new List<Korisnik>();
-            using (var connection = new SqliteConnection(connectionString))
+            try
             {
+                using var connection = new SqliteConnection(connectionString);
                 connection.Open();
-                string query = "SELECT Id, Username, Name, Surname, Birthday FROM Users";
-                using (var command = new SqliteCommand(query, connection))
-                using (var reader = command.ExecuteReader())
+
+                string query = "SELECT Id, Username, Name, Surname, Birthday FROM Users LIMIT @PageSize OFFSET @Offset";
+                using var command = new SqliteCommand(query, connection);
+                command.Parameters.AddWithValue("@PageSize", pageSize);
+                command.Parameters.AddWithValue("@Offset", pageSize * (page - 1));
+                using var reader = command.ExecuteReader();
                 {
                     while (reader.Read())
                     {
@@ -38,7 +42,33 @@ namespace WebApplication2.Repositories
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Greska u GetPaged {ex.Message}");
+                throw;
+            }
+            
             return korisnici;
+        }
+
+        public int CountAll()
+        {
+            try
+            {
+                using var connection = new SqliteConnection(connectionString);
+                connection.Open();
+
+                string query = "SELECT COUNT(*) FROM Users";
+                using var command = new SqliteCommand(query, connection);
+                int totalCount = Convert.ToInt32(command.ExecuteScalar());
+
+                return totalCount;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Greska i CountAll: {ex.Message}");
+                throw;
+            }
         }
         public Korisnik GetById(int id)
         {
