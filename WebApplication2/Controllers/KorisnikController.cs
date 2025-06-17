@@ -10,13 +10,12 @@ namespace WebApplication2.Controllers
     [ApiController]
     public class KorisnikController : ControllerBase
     {
-        private KorisnikRepozitorijum korisnikRepozitorijum = new KorisnikRepozitorijum();
         //private readonly string connectionString = "Data Source=database/mydatabase.db";
         private readonly UserDbRepository userRepo;
 
-        public KorisnikController()
+        public KorisnikController(IConfiguration configuration)
         {
-            userRepo = new UserDbRepository();
+            userRepo = new UserDbRepository(configuration);
         }
 
         //Izmenjena metoda GET svih korisnika

@@ -8,7 +8,12 @@ namespace WebApplication2.Repositories
 {
     public class UserDbRepository
     {
-        private readonly string connectionString = "Data Source=database/mydatabase.db";
+        private readonly string connectionString;
+
+        public UserDbRepository(IConfiguration configuration)
+        {
+            connectionString = configuration.GetConnectionString("SQLiteConnection");
+        }
 
 
         public List<Korisnik> GetAll()
