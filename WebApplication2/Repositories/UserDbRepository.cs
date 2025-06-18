@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using WebApplication2.Models;
 
-
 namespace WebApplication2.Repositories
 {
     public class UserDbRepository
@@ -15,7 +14,6 @@ namespace WebApplication2.Repositories
             connectionString = configuration.GetConnectionString("SQLiteConnection");
         }
 
-
         public List<Korisnik> GetPaged(int page, int pageSize)
         {
             var korisnici = new List<Korisnik>();
@@ -24,7 +22,7 @@ namespace WebApplication2.Repositories
                 using var connection = new SqliteConnection(connectionString);
                 connection.Open();
 
-                string query = "SELECT Id, Username, Name, Surname, Birthday FROM Users LIMIT @PageSize OFFSET @Offset";
+                string query = "SELECT Id, KorisnickoIme, Ime, Prezime, Datum FROM Korisnici LIMIT @PageSize OFFSET @Offset";
                 using var command = new SqliteCommand(query, connection);
                 command.Parameters.AddWithValue("@PageSize", pageSize);
                 command.Parameters.AddWithValue("@Offset", pageSize * (page - 1));
@@ -33,11 +31,11 @@ namespace WebApplication2.Repositories
                     while (reader.Read())
                     {
                         korisnici.Add(new Korisnik(
-                            Convert.ToInt32(reader["id"]),
-                            reader["Username"].ToString(),
-                            reader["Name"].ToString(),
-                            reader["Surname"].ToString(),
-                            DateTime.Parse(reader["Birthday"].ToString())
+                            Convert.ToInt32(reader["Id"]),
+                            reader["KorisnickoIme"].ToString(),
+                            reader["Ime"].ToString(),
+                            reader["Prezime"].ToString(),
+                            DateTime.Parse(reader["Datum"].ToString())
                             ));
                     }
                 }
@@ -47,7 +45,7 @@ namespace WebApplication2.Repositories
                 Console.WriteLine($"Greska u GetPaged {ex.Message}");
                 throw;
             }
-            
+
             return korisnici;
         }
 
@@ -58,7 +56,7 @@ namespace WebApplication2.Repositories
                 using var connection = new SqliteConnection(connectionString);
                 connection.Open();
 
-                string query = "SELECT COUNT(*) FROM Users";
+                string query = "SELECT COUNT(*) FROM Korisnici";
                 using var command = new SqliteCommand(query, connection);
                 int totalCount = Convert.ToInt32(command.ExecuteScalar());
 
@@ -70,12 +68,13 @@ namespace WebApplication2.Repositories
                 throw;
             }
         }
+
         public Korisnik GetById(int id)
         {
             using (var connection = new SqliteConnection(connectionString))
             {
                 connection.Open();
-                string query = "SELECT Id, Username, Name, Surname, BIrthday FROM Users WHERE Id=@id";
+                string query = "SELECT Id, KorisnickoIme, Ime, Prezime, Datum FROM Korisnici WHERE Id=@id";
                 using (var command = new SqliteCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@id", id);
@@ -85,10 +84,10 @@ namespace WebApplication2.Repositories
                         {
                             return new Korisnik(
                                 Convert.ToInt32(reader["Id"]),
-                                reader["Username"].ToString(),
-                                reader["Name"].ToString(),
-                                reader["Surname"].ToString(),
-                                DateTime.Parse(reader["Birthday"].ToString())
+                                reader["KorisnickoIme"].ToString(),
+                                reader["Ime"].ToString(),
+                                reader["Prezime"].ToString(),
+                                DateTime.Parse(reader["Datum"].ToString())
                                 );
                         }
                     }
@@ -102,31 +101,32 @@ namespace WebApplication2.Repositories
             using (var connection = new SqliteConnection(connectionString))
             {
                 connection.Open();
-                string query = "INSERT INTO Users (Username,Name, Surname, Birthday) VALUES (@username, @name, @surname, @birthday); SELECT last_insert_rowid();";
-                using (var command = new SqliteCommand(query,connection))
+                string query = "INSERT INTO Korisnici (KorisnickoIme, Ime, Prezime, Datum) VALUES (@korisnickoIme, @ime, @prezime, @datum); SELECT last_insert_rowid();";
+                using (var command = new SqliteCommand(query, connection))
                 {
-                    command.Parameters.AddWithValue("@username", korisnik.KorisnickoIme);
-                    command.Parameters.AddWithValue("@name", korisnik.Ime);
-                    command.Parameters.AddWithValue("@surname", korisnik.Prezime);
-                    command.Parameters.AddWithValue("@birthday", korisnik.Datum.ToString("yyyy-MM-dd"));
+                    command.Parameters.AddWithValue("@korisnickoIme", korisnik.KorisnickoIme);
+                    command.Parameters.AddWithValue("@ime", korisnik.Ime);
+                    command.Parameters.AddWithValue("@prezime", korisnik.Prezime);
+                    command.Parameters.AddWithValue("@datum", korisnik.Datum.ToString("yyyy-MM-dd"));
                     long id = (long)command.ExecuteScalar();
                     korisnik.Id = (int)id;
                     return korisnik;
                 }
             }
         }
+
         public bool Update(Korisnik korisnik)
         {
             using (var connection = new SqliteConnection(connectionString))
             {
                 connection.Open();
-                string query = "UPDATE Users SET Username = @username, Name = @name, Surname = @surname, Birthday = @birthday WHERE Id = @id";
+                string query = "UPDATE Korisnici SET KorisnickoIme = @korisnickoIme, Ime = @ime, Prezime = @prezime, Datum = @datum WHERE Id = @id";
                 using (var command = new SqliteCommand(query, connection))
                 {
-                    command.Parameters.AddWithValue("@username", korisnik.KorisnickoIme);
-                    command.Parameters.AddWithValue("@name", korisnik.Ime);
-                    command.Parameters.AddWithValue("@surname", korisnik.Prezime);
-                    command.Parameters.AddWithValue("@birthday", korisnik.Datum.ToString("yyyy-MM-dd"));
+                    command.Parameters.AddWithValue("@korisnickoIme", korisnik.KorisnickoIme);
+                    command.Parameters.AddWithValue("@ime", korisnik.Ime);
+                    command.Parameters.AddWithValue("@prezime", korisnik.Prezime);
+                    command.Parameters.AddWithValue("@datum", korisnik.Datum.ToString("yyyy-MM-dd"));
                     command.Parameters.AddWithValue("@id", korisnik.Id);
 
                     int rowsAffected = command.ExecuteNonQuery();
@@ -140,11 +140,10 @@ namespace WebApplication2.Repositories
             using (var connection = new SqliteConnection(connectionString))
             {
                 connection.Open();
-                string query = "DELETE FROM Users WHERE id = @id";
-                using (var command = new SqliteCommand(query,connection))
+                string query = "DELETE FROM Korisnici WHERE id = @id";
+                using (var command = new SqliteCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@id", id);
-                    
                     int rowsAffected = command.ExecuteNonQuery();
                     return rowsAffected > 0;
                 }

@@ -6,11 +6,10 @@ using Microsoft.Data.Sqlite;
 
 namespace WebApplication2.Controllers
 {
-    [Route("api/korisnici")]
+    [Route("api/users")]
     [ApiController]
     public class KorisnikController : ControllerBase
     {
-        //private readonly string connectionString = "Data Source=database/mydatabase.db";
         private readonly UserDbRepository userRepo;
 
         public KorisnikController(IConfiguration configuration)
@@ -18,22 +17,17 @@ namespace WebApplication2.Controllers
             userRepo = new UserDbRepository(configuration);
         }
 
-        //Izmenjena metoda GET svih korisnika
-
         //GET: api/users/paged
         [HttpGet("paged")]
         public ActionResult GetPaged([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
-            //List<Korisnik> korisnici = KorisnikRepozitorijum.Data.Values.ToList();
 
-            //return Ok(korisnici);
             if (page < 1 || pageSize < 1)
             {
                 return BadRequest("Page and PageSize must be greater than zero");
             }
             try
             {
-                //var korisnici = GetAllFromDatabase();
                 var users = userRepo.GetPaged(page, pageSize);
                 var totalCount = userRepo.CountAll();
 

@@ -1,4 +1,4 @@
-
+﻿
 namespace WebApplication2
 {
     public class Program
@@ -6,6 +6,14 @@ namespace WebApplication2
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            var dbPath = Path.Combine(AppContext.BaseDirectory, "database", "mydatabase.db");
+            Console.WriteLine($"SQLite PATH koji aplikacija koristi: {dbPath}");
+            Console.WriteLine($"Postoji fajl: {File.Exists(dbPath)}");
+
+            builder.Configuration["ConnectionStrings:SQLiteConnection"] = $"Data Source={dbPath}";
+
+
 
             builder.Services.AddCors(options =>
             {
