@@ -1,6 +1,8 @@
 ﻿
 using WebApplication2.Repositories;
 
+using WebApplication2.Repositories;
+
 namespace WebApplication2
 {
     public class Program
@@ -9,30 +11,25 @@ namespace WebApplication2
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            // 🔧 1. Priprema connection stringa
             var dbPath = Path.Combine(AppContext.BaseDirectory, "database", "mydatabase.db");
-            Console.WriteLine($"SQLite PATH koji aplikacija koristi: {dbPath}");
-            Console.WriteLine($"Postoji fajl: {File.Exists(dbPath)}");
+            var connectionString = $"Data Source={dbPath}";
 
-            builder.Configuration["ConnectionStrings:SQLiteConnection"] = $"Data Source={dbPath}";
+            // ✅ 2. Registruj repo sa ručno prosleđenim connection stringom
+            builder.Services.AddSingleton(new GrupaDbRepository(connectionString));
 
-
-
+            // ✅ 3. Ostalo
             builder.Services.AddCors(options =>
             {
-                options.AddPolicy("AllowAllOrigins",
-                    builder =>
-                    {
-                        builder.AllowAnyOrigin()
-                               .AllowAnyHeader()
-                               .AllowAnyMethod();
-                    });
+                options.AddPolicy("AllowAllOrigins", policy =>
+                {
+                    policy.AllowAnyOrigin()
+                          .AllowAnyHeader()
+                          .AllowAnyMethod();
+                });
             });
 
-         
-            // Add services to the container.
-
             builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
@@ -40,8 +37,6 @@ namespace WebApplication2
 
             app.UseCors("AllowAllOrigins");
 
-
-            // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
@@ -49,11 +44,9 @@ namespace WebApplication2
             }
 
             app.UseAuthorization();
-
-
             app.MapControllers();
-
             app.Run();
         }
     }
 }
+

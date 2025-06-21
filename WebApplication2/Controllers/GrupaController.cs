@@ -57,39 +57,68 @@ namespace WebApplication2.Controllers
                 return StatusCode(500, $"Greška na serveru: {ex.Message}");
             }
         }
-    
-        
 
 
+        [HttpPost]
+        public ActionResult<Grupa> Create([FromBody] Grupa novaGrupa)
+        {
+            if (string.IsNullOrWhiteSpace(novaGrupa.Ime) || string.IsNullOrWhiteSpace(novaGrupa.DatumOsnivanja.ToShortDateString()))
+            {
+                return BadRequest();
+            }
 
-        //[HttpPost]
-        //public ActionResult<Grupa> Create([FromBody] Grupa novaGrupa)
-        //{
-        //    if(string.IsNullOrWhiteSpace(novaGrupa.Ime) || string.IsNullOrWhiteSpace(novaGrupa.DatumOsnivanja.ToShortDateString()))
-        //    {
-        //        return BadRequest();
-        //    }
+            Grupa newGroup = grupaRepo.Create(novaGrupa);
 
-        //    novaGrupa.Id = DodeliNoviId(GrupaRepository.Data.Keys.ToList());
-        //    GrupaRepository.Data[novaGrupa.Id] = novaGrupa;
-        //    grupaRepository.Sacuvaj();
+            return Ok(newGroup);
+        }
 
-        //    return Ok(novaGrupa);
-        //}
 
-        //[HttpDelete("{id}")]
-        //public ActionResult Delete(int id)
-        //{
-        //    if (!GrupaRepository.Data.ContainsKey(id))
-        //    {
-        //        return NotFound();
-        //    }
+        [HttpPut("{id}")]
+        public ActionResult<Grupa> Update(int id, [FromBody] Grupa grupaAzuriranje)
+        {
+            if (grupaAzuriranje == null || string.IsNullOrWhiteSpace(grupaAzuriranje.Ime))
+            {
+                return BadRequest("Ime grupe je obavezno.");
+            }
 
-        //    GrupaRepository.Data.Remove(id);
-        //    grupaRepository.Sacuvaj();
+            try
+            {
+                grupaAzuriranje.Id = id;
 
-        //    return NoContent();
-        //}
+                Grupa updated = grupaRepo.Update(grupaAzuriranje);
+
+                if (updated == null)
+                {
+                    return NotFound($"Grupa sa ID-jem {id} nije pronađena.");
+                }
+
+                return Ok(updated);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Greška pri izmeni grupe: {ex.Message}");
+            }
+        }
+
+
+        [HttpDelete("{id}")]
+
+        public ActionResult Delete(int id)
+        {
+            
+            try
+            {
+                bool deleted = grupaRepo.Delete(id);
+                if (!deleted)
+                    return NotFound();
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Greska pri brisanju grupe: " + ex.Message);
+            }
+
+        }
 
 
         //private int DodeliNoviId(List<int> identifikatori)
