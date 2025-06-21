@@ -1,4 +1,6 @@
 ﻿
+using WebApplication2.Repositories;
+
 namespace WebApplication2
 {
     public class Program
@@ -26,7 +28,7 @@ namespace WebApplication2
                     });
             });
 
-
+         
             // Add services to the container.
 
             builder.Services.AddControllers();
