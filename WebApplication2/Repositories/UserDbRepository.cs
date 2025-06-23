@@ -14,6 +14,7 @@ namespace WebApplication2.Repositories
             connectionString = configuration.GetConnectionString("SQLiteConnection");
         }
 
+
         public List<Korisnik> GetPaged(int page, int pageSize)
         {
             var korisnici = new List<Korisnik>();

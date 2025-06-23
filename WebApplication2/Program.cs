@@ -1,7 +1,7 @@
 ﻿
 using WebApplication2.Repositories;
 
-using WebApplication2.Repositories;
+
 
 namespace WebApplication2
 {
@@ -15,8 +15,14 @@ namespace WebApplication2
             var dbPath = Path.Combine(AppContext.BaseDirectory, "database", "mydatabase.db");
             var connectionString = $"Data Source={dbPath}";
 
+            // ✅ Učitavanje konekcionog stringa u konfiguraciju
+            // dodao sam ovo za user deo koda
+            builder.Configuration["ConnectionStrings:SQLiteConnection"] = connectionString;
+
             // ✅ 2. Registruj repo sa ručno prosleđenim connection stringom
             builder.Services.AddSingleton(new GrupaDbRepository(connectionString));
+            //dodao sam ovo za user deo koda
+            builder.Services.AddSingleton<UserDbRepository>();
 
             // ✅ 3. Ostalo
             builder.Services.AddCors(options =>
