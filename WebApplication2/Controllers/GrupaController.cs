@@ -50,16 +50,16 @@ namespace WebApplication2.Controllers
 
         [HttpGet("{id}")]
 
-        public ActionResult<Grupa> GetById(int id)
+        public ActionResult<List<Grupa>> GetById(int id)
         {
             try
             {
-                Grupa grupa = grupaRepo.GetById(id);
+                List<Grupa> groups = grupaRepo.GetById(id);
 
-                if (grupa == null)
+                if (groups == null)
                     return NotFound($"Grupa sa ID-jem {id} nije pronađena.");
 
-                return Ok(grupa);
+                return Ok(groups);
             }
             catch (Exception ex)
             {

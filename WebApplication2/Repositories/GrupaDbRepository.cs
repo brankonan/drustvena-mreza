@@ -161,25 +161,57 @@ namespace WebApplication2.Repositories
             return newGroup;
 
         }
-        public Grupa GetById(int id)
+        public List<Grupa> GetById(int id)
         {
+            List<Grupa> groups = new List<Grupa>();
+
             try
-                {using SqliteConnection connection = new SqliteConnection(connectionString);
+                {
+                using SqliteConnection connection = new SqliteConnection(connectionString);
                 connection.Open();
 
-                string query = "SELECT * FROM Groups WHERE Id=@Id";
-                SqliteCommand command = new SqliteCommand(query, connection);
+                string query = @" SELECT g.Id AS GroupId, g.Name AS GroupName, g.CreationDate,
+                                u.Id AS UserId, u.Username, u.Name AS UserName, u.Surname, u.Birthday
+                                FROM Groups g
+                                LEFT JOIN GroupMemberships gm ON g.Id = gm.GroupId   
+                                LEFT JOIN Users u ON gm.UserId = u.Id
+                                WHERE g.Id=@Id
+                                ORDER BY g.Id;";
+
+                using SqliteCommand command = new SqliteCommand(query, connection);
                 command.Parameters.AddWithValue("@Id", id);
 
                 using SqliteDataReader reader = command.ExecuteReader();
+                Grupa currentGroup = null;
+
                 while (reader.Read())
                 {
-                    int identifikator = Convert.ToInt32(reader["Id"]);
-                    string ime = reader["Name"].ToString();
-                    DateTime datum = Convert.ToDateTime(reader["CreationDate"]);
+                    int groupId = Convert.ToInt32(reader["GroupId"]);
 
-                    return new Grupa(identifikator, ime, datum);
+                    if (currentGroup == null || currentGroup.Id != groupId)
+                    {
 
+                        string name = reader["GroupName"].ToString();
+                        DateTime date = Convert.ToDateTime(reader["CreationDate"]);
+
+                        Grupa g = new Grupa(groupId, name, date);
+                        currentGroup = g;
+
+                        groups.Add(currentGroup);
+                    }
+
+                    if (reader["UserId"] != DBNull.Value)
+                    {
+                        int userID = Convert.ToInt32(reader["UserId"]);
+                        string username = Convert.ToString(reader["Username"]);
+                        string name = Convert.ToString(reader["UserName"]);
+                        string surname = Convert.ToString(reader["Surname"]);
+                        DateTime birthday = Convert.ToDateTime(reader["Birthday"]);
+
+                        Korisnik user = new Korisnik(userID, username, name, surname, birthday);
+
+                        currentGroup.Korisnici.Add(user);
+                    }
                 }
             }
             catch (SqliteException ex)
@@ -198,7 +230,7 @@ namespace WebApplication2.Repositories
             {
                 Console.WriteLine($"Neočekivana greška: {ex.Message}");
             }
-            return null;
+            return groups;
 
         }
 
