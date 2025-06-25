@@ -1,5 +1,6 @@
 ﻿using System.Runtime.Intrinsics.X86;
 using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Data.Sqlite;
 using WebApplication2.Models;
 
@@ -12,6 +13,42 @@ namespace WebApplication2.Repositories
         public GrupaDbRepository(IConfiguration configuration)
         {
             connectionString = configuration["ConnectionString:SQLiteConnection"];
+        }
+
+        public int CountAll()
+        {
+            int totalCount = 0;
+
+            try
+            {
+                using SqliteConnection connection = new SqliteConnection(connectionString);
+                connection.Open();
+
+                string query = "SELECT COUNT(*) FROM Groups";
+                using SqliteCommand command = new SqliteCommand(query, connection);
+               
+                totalCount = Convert.ToInt32(command.ExecuteScalar());
+
+            }
+            catch (SqliteException ex)
+            {
+                Console.WriteLine($"Greška pri konekciji ili izvršavanju neispravnih SQL upita: {ex.Message}");
+            }
+            catch (FormatException ex)
+            {
+                Console.WriteLine($"Greška u konverziji podataka iz baze: {ex.Message}");
+            }
+            catch (InvalidOperationException ex)
+            {
+                Console.WriteLine($"Konekcija nije otvorena ili je otvorena više puta: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Neočekivana greška: {ex.Message}");
+            }
+
+            return totalCount;
+
         }
 
         public bool Delete(int id)
@@ -165,7 +202,7 @@ namespace WebApplication2.Repositories
 
         }
 
-        public List<Grupa> GetAll()
+        public List<Grupa> GetPaged(int page, int pageSize)
         {
 
             List<Grupa> grupe = new List<Grupa>();
@@ -175,8 +212,10 @@ namespace WebApplication2.Repositories
                 using SqliteConnection connection = new SqliteConnection(connectionString);
                 connection.Open();
 
-                string query = "SELECT Id, Name, CreationDate FROM Groups";
+                string query = "SELECT Id, Name, CreationDate FROM Groups LIMIT @PageSize OFFSET @Offset";
                 using SqliteCommand command = new SqliteCommand(query, connection);
+                command.Parameters.AddWithValue("@PageSize", pageSize);
+                command.Parameters.AddWithValue("@Offset", pageSize * (page - 1));
 
                 using SqliteDataReader reader = command.ExecuteReader();
                 while (reader.Read())

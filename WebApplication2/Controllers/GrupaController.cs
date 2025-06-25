@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.Numerics;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.Sqlite;
@@ -22,16 +23,24 @@ namespace WebApplication2.Controllers
 
 
         [HttpGet]
-        public ActionResult<List<Grupa>> GetAll()
+        public ActionResult GetPaged([FromQuery] int page = 1 , [FromQuery] int pageSize= 10)
         {
+            if (page < 1 || pageSize < 1) 
+            {
+                return BadRequest("Page and PageSize must be greater than zero.");
+            }
             try
             {
-                List<Grupa> grupe = grupaRepo.GetAll();
+                List<Grupa> grupe = grupaRepo.GetPaged(page, pageSize);
+                int totalCount = grupaRepo.CountAll();
 
-                if (grupe == null || grupe.Count == 0)
-                    return NoContent();
+                Object result = new
+                {
+                    Data = grupe,
+                    TotalCount = totalCount
+                };
 
-                return Ok(grupe);
+                return Ok(result);
             }
             catch (Exception ex)
             {
