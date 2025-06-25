@@ -11,6 +11,12 @@ namespace WebApplication2.Controllers
     public class GroupMembersController : ControllerBase
     {
 
+        private GroupMembersDbRepository groupMembersRepo;
+
+        public GroupMembersController(IConfiguration configuration)
+        {
+            groupMembersRepo = new GroupMembersDbRepository(configuration);
+        }
         public KorisnikRepozitorijum korisnikRepository = new KorisnikRepozitorijum();
         public GrupaRepository grupaRepository = new GrupaRepository();
 
@@ -34,20 +40,19 @@ namespace WebApplication2.Controllers
         [HttpPut("{idKorisnika}")]
         public ActionResult AddUser([FromRoute]int idGrupe, [FromRoute] int idKorisnika)
         {
-            if (!GrupaRepository.Data.ContainsKey(idGrupe) || !KorisnikRepozitorijum.Data.ContainsKey(idKorisnika))
-            {
-                return NotFound();
-            }
+            if (idGrupe == 0 || idKorisnika == 0) {
 
-            Grupa grupa = GrupaRepository.Data[idGrupe];
-            Korisnik korisnik = KorisnikRepozitorijum.Data[idKorisnika];
-
-            if (!grupa.Korisnici.Any(k => k.Id == idKorisnika))
-            {
-                grupa.Korisnici.Add(korisnik);
-                grupaRepository.Sacuvaj();
+                return BadRequest();
             }
-            return Ok();
+            try
+            {
+
+                groupMembersRepo.Create(idGrupe, idKorisnika);
+
+                return Ok();
+            }
+            catch (Exception ex) { return Problem("An error occurred while fetching the books."); }
+
         }
 
         //DELETE /groups/{groupId}/ users /{ userId}
