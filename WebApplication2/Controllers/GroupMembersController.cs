@@ -59,20 +59,20 @@ namespace WebApplication2.Controllers
         [HttpDelete("{idKorisnika}")]
         public ActionResult RemoveUser([FromRoute] int idGrupe, [FromRoute] int idKorisnika)
         {
-            if (!GrupaRepository.Data.ContainsKey(idGrupe))
+            if (idGrupe == 0 || idKorisnika == 0)
             {
-                return NotFound();
+
+                return BadRequest();
             }
-
-            Grupa grupa = GrupaRepository.Data[idGrupe];
-            Korisnik korisnik = grupa.Korisnici.FirstOrDefault(k => k.Id == idKorisnika);
-
-            if(korisnik != null)
+            try
             {
-                grupa.Korisnici.Remove(korisnik);
-                grupaRepository.Sacuvaj();
+
+                groupMembersRepo.RemoveUserFromGroup(idGrupe, idKorisnika);
+
+                return Ok();
             }
-            return NoContent();
+            catch (Exception ex) { return Problem("An error occurred while fetching the books."); }
+
         }
     }
 }
