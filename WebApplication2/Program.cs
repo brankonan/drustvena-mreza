@@ -20,7 +20,7 @@ namespace WebApplication2
             builder.Configuration["ConnectionStrings:SQLiteConnection"] = connectionString;
 
             // ✅ 2. Registruj repo sa ručno prosleđenim connection stringom
-            builder.Services.AddSingleton(new GrupaDbRepository(connectionString));
+            builder.Services.AddSingleton<GrupaDbRepository>();
             //dodao sam ovo za user deo koda
             builder.Services.AddSingleton<UserDbRepository>();
 

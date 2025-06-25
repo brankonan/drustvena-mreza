@@ -9,9 +9,9 @@ namespace WebApplication2.Repositories
     {
         private readonly string connectionString;
 
-        public GrupaDbRepository(string connectionString)
+        public GrupaDbRepository(IConfiguration configuration)
         {
-            this.connectionString = connectionString;
+            connectionString = configuration["ConnectionString:SQLiteConnection"];
         }
 
         public bool Delete(int id)

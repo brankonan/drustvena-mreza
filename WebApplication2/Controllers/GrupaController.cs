@@ -13,11 +13,11 @@ namespace WebApplication2.Controllers
     {
         //public GrupaRepository grupaRepository = new GrupaRepository();
 
-        private GrupaDbRepository grupaRepo { get; }
+        private GrupaDbRepository grupaRepo;
 
-        public GrupaController(GrupaDbRepository grupaRepo)
+        public GrupaController(IConfiguration configuration)
         {
-            this.grupaRepo = grupaRepo;
+            grupaRepo = new GrupaDbRepository(configuration);
         }
 
 
@@ -35,7 +35,7 @@ namespace WebApplication2.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Greška prilikom dobavljanja podataka: {ex.Message}");
+                return Problem("An error occurred while fetching the books.");
             }
         }
 
